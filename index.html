@@ -37,8 +37,8 @@ out vec3 vNormal;
 out vec3 n,l,v;
 
 void main() {
-  vTexCoord.s = (aVertexNormal.x + 1)/2;
-  vTexCoord.t = (aVertexNormal.y + 1)/2;
+  vTexCoord.s = (aVertexNormal.x + 1)/2.0;
+  vTexCoord.t = (aVertexNormal.y + 1)/2.0;
   n = normalize(uNormalMatrix*aVertexNormal);
   l = normalize(uNormalMatrix*vec3(1.0,0.25,0.0));
   vec4 p = uModelViewMatrix*vec4(aVertexPosition, 1.0);
