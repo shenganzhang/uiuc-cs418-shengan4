@@ -74,7 +74,7 @@ void main() {
   vec3 l1 = normalize(l);
   vec3 v1 = normalize(v);
   vec3 r = normalize(reflect(-l1,n1));
-  vec3 temp = 0.5*vec3(1,0,0)*max(dot(n1,l1),0.0) + 0.5*vec3(1,1,1)*pow(max(dot(v1,r),0.0), 10.0);
+  vec3 temp = 0.5*illinois*max(dot(n1,l1),0.0) + 0.5*stadium*pow(max(dot(v1,r),0.0), 10.0);
   outColor = vec4(temp,1.0);
 }
 `;
