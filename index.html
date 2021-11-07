@@ -37,8 +37,8 @@ out vec3 vNormal;
 out vec3 n,l,v;
 
 void main() {
-  vTexCoord.s = aVertexPosition.x + 0.5;
-  vTexCoord.t = aVertexPosition.y + 0.5;
+  vTexCoord.s = (aVertexNormal.x + 1)/2;
+  vTexCoord.t = (aVertexNormal.y + 1)/2;
   n = normalize(uNormalMatrix*aVertexNormal);
   l = normalize(uNormalMatrix*vec3(1.0,0.25,0.0));
   vec4 p = uModelViewMatrix*vec4(aVertexPosition, 1.0);
@@ -162,7 +162,7 @@ function initwebgl() {
   //
 
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA,
-                gl.UNSIGNED_BYTE, null);
+                gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
 
   var image = new Image();
   image.src = "illinois512.png";
