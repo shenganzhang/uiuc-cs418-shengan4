@@ -24,6 +24,10 @@ var vert_normal_attr;
 
 var vs = `#version 300 es
 
+varying vec3 R;
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
 in vec3 aVertexPosition;
 in vec3 aVertexNormal;
 in vec2 aTexCoord;
@@ -34,11 +38,11 @@ uniform mat4 uProjectionMatrix;
 
 out vec2 vTexCoord;
 out vec3 n,l,v;
-out vec3 R
+
 
 void main() {
-  vTexCoord.s = (aVertexNormal.x + 1.0)/2.0;
-  vTexCoord.t = (aVertexNormal.y + 1.0)/2.0;
+  vTexCoord.s = (aVertexNormal.x + 1.0);
+  vTexCoord.t = (aVertexNormal.y + 1.0);
   n = normalize(uNormalMatrix*aVertexNormal);
   l = normalize(uNormalMatrix*vec3(1.0,1.0,1.0));
   vec4 p = uModelViewMatrix*vec4(aVertexPosition, 1.0);
@@ -46,9 +50,9 @@ void main() {
 
   gl_Position = uProjectionMatrix*uModelViewMatrix*vec4(aVertexPosition, 1.0);
 
-  vec4 eyePos = uModelViewMatrix * vec4(aVertexPosition, 1.0)；
-  vec4 N = uModelViewMatrix * vec4(aVertexNormal, 1.0);
-  R = reflect(eyePos.xyz, N.xyz);
+  vec4 eyePos = ModelViewMatrix*vPosition;
+  vec4 N = ModelViewMatrix*vNormal;
+  R = reflect(eyePos.xyz, N.xyz); 
 }
 `;
 
