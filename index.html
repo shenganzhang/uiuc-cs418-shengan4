@@ -61,6 +61,7 @@ var fs = `#version 300 es
 
 precision mediump float;
 
+in vec3 aVertexPosition;
 in vec2 vTexCoord;
 in vec3 n,l,v;
 in vec3 R;
@@ -77,10 +78,10 @@ void main() {
   vec3 v1 = normalize(v);
   vec3 r = normalize(reflect(-l1,n1));
   vec3 temp = illinois*max(dot(n1,l1),0.0);
-  outColor = vec4(temp,1.0);
+  // outColor = vec4(temp,1.0);
 
-  vec4 texColor = textureCube(uSampler2, R);
-  gl_FragColor = texColor;
+  vec4 texColor = textureCube(uSampler2, normalize(aVertexPosition).xyz);
+  outColor = texColor
 }
 `;
 
