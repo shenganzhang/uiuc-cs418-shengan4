@@ -28,13 +28,13 @@ in vec3 aVertexPosition;
 in vec3 aVertexNormal;
 in vec2 aTexCoord;
 
-varying vec3 R;
 uniform mat4 uModelViewMatrix;
 uniform mat3 uNormalMatrix;
 uniform mat4 uProjectionMatrix;
 
 out vec2 vTexCoord;
 out vec3 n,l,v;
+out vec3 R;
 
 
 void main() {
@@ -47,8 +47,8 @@ void main() {
 
   gl_Position = uProjectionMatrix*uModelViewMatrix*vec4(aVertexPosition, 1.0);
 
-  vec4 eyePos = uModelViewMatrix*vec4(vPosition, 1.0);
-  vec4 N = uModelViewMatrix*vec4(vNormal, 1.0);
+  vec4 eyePos = uModelViewMatrix*vec4(aVertexPosition, 1.0);
+  vec4 N = uModelViewMatrix*vec4(aVertexNormal, 1.0);
   R = reflect(eyePos.xyz, N.xyz); 
 }
 `;
