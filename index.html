@@ -32,24 +32,23 @@ uniform mat4 uModelViewMatrix;
 uniform mat3 uNormalMatrix;
 uniform mat4 uProjectionMatrix;
 
-out vec2 vTexCoord;
+out vec2 vTexCoord1;
+out vec3 vNormal;
 out vec3 n,l,v;
-out vec3 R;
+out vec3 eyePos;
 
 
 void main() {
-  vTexCoord.s = (aVertexNormal.x + 1.0);
-  vTexCoord.t = (aVertexNormal.y + 1.0);
   n = normalize(uNormalMatrix*aVertexNormal);
-  l = normalize(uNormalMatrix*vec3(1.0,1.0,1.0));
+  l = normalize(uNormalMatrix*vec3(0.0,10.0,0.0));
   vec4 p = uModelViewMatrix*vec4(aVertexPosition, 1.0);
+  eyePos = aVertexPosition;
   v = normalize(-p.xyz);
 
   gl_Position = uProjectionMatrix*uModelViewMatrix*vec4(aVertexPosition, 1.0);
 
-  vec4 eyePos = uModelViewMatrix*vec4(aVertexPosition, 1.0);
-  vec4 N = uModelViewMatrix*vec4(aVertexNormal, 1.0);
-  R = reflect(eyePos.xyz, N.xyz); 
+  vTexCoord1.s = (n.x + 1.0) / 2.0;
+  vTexCoord1.t = (n.y + 1.0) / 2.0;
 }
 `;
 
@@ -61,27 +60,31 @@ var fs = `#version 300 es
 
 precision mediump float;
 
-in vec3 aVertexPosition;
-in vec2 vTexCoord;
+in vec3 eyePos;
 in vec3 n,l,v;
-in vec3 R;
+in vec3 vNormal;
+in vec2 vTexCoord1;
 
 uniform sampler2D uSampler;
-uniform samplerCube uSampler2;
+uniform sampler2D uSampler2;
 
 out vec4 outColor;
     
 void main() {
-  vec3 illinois = vec3(texture(uSampler, vTexCoord));
+  float PI = 3.1415926535897932384626433832795;
+  vec2 IL = vec2((atan(eyePos.z, eyePos.x)) / (2.0 * PI), (eyePos.y+0.245) / (0.245*2.0));
+
+  vec3 illinois = vec3(texture(uSampler, IL));
+  // illinois = normalize(illinois * 2.0 -1.0);
+  vec3 stadium = vec3(texture(uSampler2, vTexCoord1));
   vec3 n1 = normalize(n);
   vec3 l1 = normalize(l);
   vec3 v1 = normalize(v);
   vec3 r = normalize(reflect(-l1,n1));
-  vec3 temp = illinois*max(dot(n1,l1),0.0);
-  // outColor = vec4(temp,1.0);
 
-  vec4 texColor = textureCube(uSampler2, normalize(aVertexPosition).xyz);
-  outColor = texColor
+  vec3 temp = 0.5*illinois*max(dot(n1,l1), 0.0) + 0.25*stadium*pow(max(dot(v1,r),0.0), 2.0) + 0.25*stadium;
+  // vec3 temp = 0.5*illinois*max(dot(n1,l1), 0.0) + 0.5*stadium*pow(max(dot(v1,r),0.0), 0.0);
+  outColor = vec4(temp, 1.0);
 }
 `;
 
