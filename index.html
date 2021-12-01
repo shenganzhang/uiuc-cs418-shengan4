@@ -76,9 +76,9 @@ void main() {
 
   vec2 IL = vec2((atan(verPos.z, verPos.x)) / (2.0 * PI), (verPos.y+0.245) / (0.245*2.0));
 
-  vec3 _illinois = vec3(texture(uSampler, IL)) * 2.0;
+  vec3 _illinois = vec3(texture(uSampler, IL)) * 2.5;
   // illinois = normalize(illinois * 2.0 -1.0);
-  vec3 stadium = vec3(texture(uSampler2, vTexCoord1)) * 2.0;
+  vec3 stadium = vec3(texture(uSampler2, vTexCoord1)) * 2.5;
   vec3 n1 = normalize(n);
   vec3 l1 = normalize(l);
   vec3 v1 = normalize(v);
@@ -92,6 +92,10 @@ void main() {
   float gauss = max(exp(-pow(max(alpha/m1, 0.0), 2.0)),0.3);
   float beckmann = max(exp(-pow(tan(alpha)/m2, 2.0)) / (PI * pow(m2, 2.0) * pow(cos(alpha), 4.0)), 0.3);
   // lighting model including phong, gaussian and beckmann
+  // References:
+  // [1] Glassner, Andrew S.. "An introduction to ray tracing." (1989).
+  // [2] R. L. Cook and K. E. Torrance. 1982. A Reflectance Model for Computer Graphics.
+  //     ACM Trans. Graph. 1, 1 (Jan. 1982), 7–24. DOI:https://doi.org/10.1145/357290.357293
 
   vec3 _verPos = 2.0 * verPos;
   vec3 illinois = _illinois;
@@ -102,7 +106,6 @@ void main() {
 
   vec3 temp = 0.4*illinois*max(dot(n1,l1), 0.0) +
   0.2*stadium*phong + 0.2*stadium*gauss + 0.2*stadium*beckmann;
-  // vec3 temp = stadium*beckmann;
   outColor = vec4(temp, 1.0);
 }
 `;
