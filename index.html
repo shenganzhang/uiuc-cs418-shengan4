@@ -34,16 +34,17 @@ uniform mat4 uProjectionMatrix;
 
 out vec2 vTexCoord1;
 out vec3 vNormal;
-out vec3 n,l,v;
-out vec3 eyePos;
+out vec3 n,l,v,h;
+out vec3 verPos;
 
 
 void main() {
   n = normalize(uNormalMatrix*aVertexNormal);
   l = normalize(uNormalMatrix*vec3(0.0,10.0,0.0));
   vec4 p = uModelViewMatrix*vec4(aVertexPosition, 1.0);
-  eyePos = aVertexPosition;
+  verPos = aVertexPosition;
   v = normalize(-p.xyz);
+  h = 0.5 * (v + l);
 
   gl_Position = uProjectionMatrix*uModelViewMatrix*vec4(aVertexPosition, 1.0);
 
@@ -60,8 +61,8 @@ var fs = `#version 300 es
 
 precision mediump float;
 
-in vec3 eyePos;
-in vec3 n,l,v;
+in vec3 verPos;
+in vec3 n,l,v,h;
 in vec3 vNormal;
 in vec2 vTexCoord1;
 
@@ -72,18 +73,36 @@ out vec4 outColor;
     
 void main() {
   float PI = 3.1415926535897932384626433832795;
-  vec2 IL = vec2((atan(eyePos.z, eyePos.x)) / (2.0 * PI), (eyePos.y+0.245) / (0.245*2.0));
 
-  vec3 illinois = vec3(texture(uSampler, IL));
+  vec2 IL = vec2((atan(verPos.z, verPos.x)) / (2.0 * PI), (verPos.y+0.245) / (0.245*2.0));
+
+  vec3 _illinois = vec3(texture(uSampler, IL)) * 2.0;
   // illinois = normalize(illinois * 2.0 -1.0);
-  vec3 stadium = vec3(texture(uSampler2, vTexCoord1));
+  vec3 stadium = vec3(texture(uSampler2, vTexCoord1)) * 2.0;
   vec3 n1 = normalize(n);
   vec3 l1 = normalize(l);
   vec3 v1 = normalize(v);
+  vec3 h1 = normalize(h);
   vec3 r = normalize(reflect(-l1,n1));
 
-  vec3 temp = 0.5*illinois*max(dot(n1,l1), 0.0) + 0.25*stadium*pow(max(dot(v1,r),0.0), 2.0) + 0.25*stadium;
-  // vec3 temp = 0.5*illinois*max(dot(n1,l1), 0.0) + 0.5*stadium*pow(max(dot(v1,r),0.0), 0.0);
+  float alpha = acos(dot(h1, n1));
+  float m1 = 0.5;
+  float m2 = 2.0;
+  float phong = pow(max(dot(v1,r),0.0), 2.0);
+  float gauss = max(exp(-pow(max(alpha/m1, 0.0), 2.0)),0.3);
+  float beckmann = max(exp(-pow(tan(alpha)/m2, 2.0)) / (PI * pow(m2, 2.0) * pow(cos(alpha), 4.0)), 0.3);
+  // lighting model including phong, gaussian and beckmann
+
+  vec3 _verPos = 2.0 * verPos;
+  vec3 illinois = _illinois;
+  if (distance(verPos, round(verPos)) > 0.36) {
+    illinois = 0.1 * illinois;
+  }
+  // Procedural Texture
+
+  vec3 temp = 0.4*illinois*max(dot(n1,l1), 0.0) +
+  0.2*stadium*phong + 0.2*stadium*gauss + 0.2*stadium*beckmann;
+  // vec3 temp = stadium*beckmann;
   outColor = vec4(temp, 1.0);
 }
 `;
